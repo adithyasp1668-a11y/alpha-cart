@@ -1,4 +1,4 @@
-package com.alphacart.seller
+package com.alphacart.delivery
 
 import io.flutter.embedding.android.FlutterActivity
 
