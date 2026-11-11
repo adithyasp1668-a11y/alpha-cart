@@ -1360,6 +1360,21 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   String _address = 'Home';
   String _payment = 'UPI';
+
+  Future<void> _placeOrder() async {
+    final completed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OrderSuccessPage(
+          orderId: widget.orderId,
+          total: widget.total,
+          payment: _payment,
+        ),
+      ),
+    );
+    if (completed == true && mounted) Navigator.pop(context, true);
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -1504,16 +1519,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         CustomerButton(
           label: 'Place order · ₹${widget.total}',
           icon: Icons.lock_outline,
-          onPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OrderSuccessPage(
-                orderId: widget.orderId,
-                total: widget.total,
-                payment: _payment,
-              ),
-            ),
-          ),
+          onPressed: _placeOrder,
         ),
       ],
     ),
@@ -1529,6 +1535,17 @@ class OrderSuccessPage extends StatelessWidget {
   });
   final String orderId, payment;
   final int total;
+
+  Future<void> _trackOrder(BuildContext context) async {
+    final completed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrackingPage(orderId: orderId, total: total),
+      ),
+    );
+    if (completed == true && context.mounted) Navigator.pop(context, true);
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
@@ -1577,13 +1594,7 @@ class OrderSuccessPage extends StatelessWidget {
               CustomerButton(
                 label: 'Track order',
                 icon: Icons.location_searching,
-                onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TrackingPage(orderId: orderId, total: total),
-                  ),
-                ),
+                onPressed: () => _trackOrder(context),
               ),
               const SizedBox(height: 9),
               TextButton(
