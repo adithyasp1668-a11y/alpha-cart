@@ -43,8 +43,8 @@ class _AdminShellState extends State<AdminShell> {
               child: child,
             ),
           ),
+          child: KeyedSubtree(key: ValueKey(_tab), child: _pages[_tab]),
         ),
-        child: KeyedSubtree(key: ValueKey(_tab), child: _pages[_tab]),
       ),
     ),
     bottomNavigationBar: NavigationBar(

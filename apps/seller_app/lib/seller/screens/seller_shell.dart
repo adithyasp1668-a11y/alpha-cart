@@ -1178,28 +1178,38 @@ class SellerReportsPage extends StatelessWidget {
             SizedBox(height: 16),
             _ZeroBars(),
             SizedBox(height: 10),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:
-                  [
-                        Text('Mon'),
-                        Text('Tue'),
-                        Text('Wed'),
-                        Text('Thu'),
-                        Text('Fri'),
-                        Text('Sat'),
-                        Text('Sun'),
-                      ]
-                      .map(
-                        (e) => Text(
-                          e,
-                          style: TextStyle(
-                            color: SellerColors.muted,
-                            fontSize: 9,
-                          ),
-                        ),
-                      )
-                      .toList(),
+              children: [
+                Text(
+                  'Mon',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+                Text(
+                  'Tue',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+                Text(
+                  'Wed',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+                Text(
+                  'Thu',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+                Text(
+                  'Fri',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+                Text(
+                  'Sat',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+                Text(
+                  'Sun',
+                  style: TextStyle(color: SellerColors.muted, fontSize: 9),
+                ),
+              ],
             ),
           ],
         ),
