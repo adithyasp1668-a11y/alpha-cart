@@ -19,8 +19,39 @@ abstract final class DeliveryTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: DeliveryColors.base,
-    colorScheme: const ColorScheme.dark(primary: DeliveryColors.orange, secondary: DeliveryColors.green, surface: DeliveryColors.card, error: DeliveryColors.red),
-    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0, foregroundColor: Colors.white, titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
-    inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: DeliveryColors.raised, hintStyle: const TextStyle(color: DeliveryColors.muted, fontSize: 13), contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: DeliveryColors.line)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: DeliveryColors.orange))),
+    colorScheme: const ColorScheme.dark(
+      primary: DeliveryColors.orange,
+      secondary: DeliveryColors.green,
+      surface: DeliveryColors.card,
+      error: DeliveryColors.red,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: DeliveryColors.raised,
+      hintStyle: const TextStyle(color: DeliveryColors.muted, fontSize: 13),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: DeliveryColors.line),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: DeliveryColors.orange),
+      ),
+    ),
   );
 }

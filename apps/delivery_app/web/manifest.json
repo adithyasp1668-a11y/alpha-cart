@@ -1,6 +1,6 @@
 {
-    "name": "alphacart",
-    "short_name": "alphacart",
+    "name": "Alpha Cart Delivery",
+    "short_name": "AC Delivery",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
