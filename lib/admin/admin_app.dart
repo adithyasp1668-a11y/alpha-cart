@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'screens/admin_pages.dart';
 import 'screens/admin_shell.dart';
 import 'theme/admin_theme.dart';
-import 'theme/admin_theme.dart';
 
 class AlphaCartAdminApp extends StatelessWidget {
   const AlphaCartAdminApp({super.key});
@@ -26,6 +25,29 @@ class AdminLoginPage extends StatefulWidget {
 class _AdminLoginPageState extends State<AdminLoginPage> {
   bool _remember = true;
   bool _obscure = true;
+  final _identity = TextEditingController();
+  final _password = TextEditingController();
+
+  @override
+  void dispose() {
+    _identity.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _signIn() {
+    if (_identity.text.trim().isEmpty || _password.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enter your email or mobile number and password.'),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => const AdminShell()));
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
@@ -89,7 +111,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   style: TextStyle(color: AdminColors.muted, fontSize: 13),
                 ),
                 const SizedBox(height: 24),
-                const TextField(
+                TextField(
+                  controller: _identity,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person_outline),
@@ -98,6 +121,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 ),
                 const SizedBox(height: 13),
                 TextField(
+                  controller: _password,
                   obscureText: _obscure,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock_outline),
@@ -166,9 +190,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     ],
                   ),
                   child: FilledButton(
-                    onPressed: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const AdminShell()),
-                    ),
+                    onPressed: _signIn,
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,

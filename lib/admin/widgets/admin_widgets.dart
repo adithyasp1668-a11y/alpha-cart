@@ -16,19 +16,34 @@ class ClayPanel extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: padding,
     decoration: BoxDecoration(
-      color: color,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(color, Colors.white, .055)!,
+          color,
+          Color.lerp(color, Colors.black, .16)!,
+        ],
+      ),
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: Colors.white.withValues(alpha: .055)),
+      border: Border.all(color: Colors.white.withValues(alpha: .09)),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: .45),
-          blurRadius: 14,
-          offset: const Offset(5, 7),
+          color: Colors.white.withValues(alpha: .035),
+          blurRadius: 4,
+          offset: const Offset(-2, -2),
         ),
         BoxShadow(
-          color: Colors.white.withValues(alpha: .035),
-          blurRadius: 8,
-          offset: const Offset(-3, -3),
+          color: Colors.black.withValues(alpha: .58),
+          blurRadius: 18,
+          offset: const Offset(7, 9),
+        ),
+        BoxShadow(
+          color: AdminColors.orange.withValues(
+            alpha: color == AdminColors.card ? .055 : .025,
+          ),
+          blurRadius: 20,
+          spreadRadius: -8,
         ),
       ],
     ),
@@ -188,16 +203,12 @@ class MetricCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(
-                Icons.arrow_upward_rounded,
-                color: AdminColors.green,
-                size: 13,
-              ),
+              const Icon(Icons.remove_rounded, color: Colors.white54, size: 13),
               const SizedBox(width: 2),
               Text(
                 delta,
                 style: const TextStyle(
-                  color: AdminColors.green,
+                  color: Colors.white70,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -277,18 +288,10 @@ class _SalesPainter extends CustomPainter {
       final y = size.height * i / 3;
       canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
     }
-    final points = <Offset>[
-      const Offset(0, .78),
-      const Offset(.12, .65),
-      const Offset(.22, .7),
-      const Offset(.33, .49),
-      const Offset(.43, .55),
-      const Offset(.55, .37),
-      const Offset(.66, .45),
-      const Offset(.78, .22),
-      const Offset(.89, .29),
-      const Offset(1, .08),
-    ].map((p) => Offset(p.dx * size.width, p.dy * size.height)).toList();
+    final points = List.generate(
+      7,
+      (index) => Offset(index / 6 * size.width, size.height * .78),
+    );
     final path = Path()..moveTo(points.first.dx, points.first.dy);
     for (var i = 1; i < points.length; i++) {
       final mid = (points[i - 1].dx + points[i].dx) / 2;
@@ -310,7 +313,7 @@ class _SalesPainter extends CustomPainter {
       Paint()
         ..shader = LinearGradient(
           colors: [
-            AdminColors.orange.withValues(alpha: .27),
+            AdminColors.orange.withValues(alpha: .09),
             AdminColors.orange.withValues(alpha: 0),
           ],
           begin: Alignment.topCenter,
@@ -326,8 +329,8 @@ class _SalesPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
     for (final p in points) {
-      canvas.drawCircle(p, 3.2, Paint()..color = AdminColors.orange);
-      canvas.drawCircle(p, 1.5, Paint()..color = Colors.white);
+      canvas.drawCircle(p, 2.3, Paint()..color = AdminColors.orange);
+      canvas.drawCircle(p, 1.1, Paint()..color = Colors.white);
     }
   }
 
@@ -781,7 +784,7 @@ class ProductRow extends StatelessWidget {
   );
 }
 
-class PartnerRow extends StatelessWidget {
+class PartnerRow extends StatefulWidget {
   const PartnerRow({
     super.key,
     required this.name,
@@ -792,6 +795,20 @@ class PartnerRow extends StatelessWidget {
   final String name, info, status;
   final bool active;
   @override
+  State<PartnerRow> createState() => _PartnerRowState();
+}
+
+class _PartnerRowState extends State<PartnerRow> {
+  late bool _active = widget.active;
+
+  String get _status {
+    if (widget.status == 'Open' || widget.status == 'Closed') {
+      return _active ? 'Open' : 'Closed';
+    }
+    return _active ? 'Online' : 'Offline';
+  }
+
+  @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
     child: ClayPanel(
@@ -801,8 +818,8 @@ class PartnerRow extends StatelessWidget {
           CircleAvatar(
             backgroundColor: AdminColors.raised,
             child: Icon(
-              active ? Icons.storefront_outlined : Icons.person_outline,
-              color: active ? AdminColors.orange : AdminColors.muted,
+              _active ? Icons.storefront_outlined : Icons.person_outline,
+              color: _active ? AdminColors.orange : AdminColors.muted,
               size: 20,
             ),
           ),
@@ -812,7 +829,7 @@ class PartnerRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  widget.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -820,7 +837,7 @@ class PartnerRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  info,
+                  widget.info,
                   style: const TextStyle(
                     color: AdminColors.muted,
                     fontSize: 10,
@@ -832,13 +849,13 @@ class PartnerRow extends StatelessWidget {
                     Icon(
                       Icons.circle,
                       size: 7,
-                      color: active ? AdminColors.green : AdminColors.red,
+                      color: _active ? AdminColors.green : AdminColors.red,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      status,
+                      _status,
                       style: TextStyle(
-                        color: active ? AdminColors.green : AdminColors.red,
+                        color: _active ? AdminColors.green : AdminColors.red,
                         fontSize: 10,
                       ),
                     ),
@@ -848,10 +865,8 @@ class PartnerRow extends StatelessWidget {
             ),
           ),
           Switch.adaptive(
-            value: active,
-            onChanged: (_) => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Availability updated')),
-            ),
+            value: _active,
+            onChanged: (value) => setState(() => _active = value),
             activeColor: AdminColors.green,
           ),
         ],
@@ -874,14 +889,11 @@ class PayoutSummary extends StatelessWidget {
           style: TextStyle(color: AdminColors.muted, fontSize: 11),
         ),
         SizedBox(height: 8),
-        Text(
-          '₹86,420',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 27),
-        ),
+        Text('₹0', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 27)),
         SizedBox(height: 13),
-        SimpleDataRow(name: 'Total partners', value: '128'),
-        SimpleDataRow(name: 'Total deliveries', value: '5,460'),
-        SimpleDataRow(name: 'Average payout / order', value: '₹15.82'),
+        SimpleDataRow(name: 'Total partners', value: '0'),
+        SimpleDataRow(name: 'Total deliveries', value: '0'),
+        SimpleDataRow(name: 'Average payout / order', value: '₹0'),
       ],
     ),
   );
@@ -928,26 +940,26 @@ class PnlSummary extends StatelessWidget {
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
         SizedBox(height: 17),
-        SimpleDataRow(name: 'Total revenue', value: '₹3,68,450'),
-        SimpleDataRow(name: 'Total expenses', value: '₹1,86,150'),
-        SimpleDataRow(name: 'Net profit', value: '₹1,82,300'),
+        SimpleDataRow(name: 'Total revenue', value: '₹0'),
+        SimpleDataRow(name: 'Total expenses', value: '₹0'),
+        SimpleDataRow(name: 'Net profit', value: '₹0'),
         SizedBox(height: 16),
         CategoryProgress(
           name: 'Food',
-          value: '42%',
-          fraction: .42,
+          value: '0%',
+          fraction: 0,
           color: AdminColors.green,
         ),
         CategoryProgress(
           name: 'Grocery',
-          value: '28%',
-          fraction: .28,
+          value: '0%',
+          fraction: 0,
           color: AdminColors.red,
         ),
         CategoryProgress(
           name: 'Gym & Fitness',
-          value: '18%',
-          fraction: .18,
+          value: '0%',
+          fraction: 0,
           color: AdminColors.blue,
         ),
       ],

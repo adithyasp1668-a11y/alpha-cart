@@ -67,8 +67,8 @@ class DashboardPage extends StatelessWidget {
           Expanded(
             child: MetricCard(
               title: 'Total orders',
-              value: '12,842',
-              delta: '+18.4%',
+              value: '0',
+              delta: '0%',
               icon: Icons.shopping_bag_outlined,
               tint: Color(0xFF173F2B),
             ),
@@ -77,8 +77,8 @@ class DashboardPage extends StatelessWidget {
           Expanded(
             child: MetricCard(
               title: 'Total sales',
-              value: '₹24.56L',
-              delta: '+22.1%',
+              value: '₹0',
+              delta: '0%',
               icon: Icons.currency_rupee,
               tint: Color(0xFF291C3F),
             ),
@@ -91,8 +91,8 @@ class DashboardPage extends StatelessWidget {
           Expanded(
             child: MetricCard(
               title: 'Platform revenue',
-              value: '₹3.68L',
-              delta: '+20.3%',
+              value: '₹0',
+              delta: '0%',
               icon: Icons.account_balance_wallet_outlined,
               tint: Color(0xFF1E3550),
             ),
@@ -101,8 +101,8 @@ class DashboardPage extends StatelessWidget {
           Expanded(
             child: MetricCard(
               title: 'Net profit',
-              value: '₹1.82L',
-              delta: '+17.6%',
+              value: '₹0',
+              delta: '0%',
               icon: Icons.trending_up_rounded,
               tint: Color(0xFF4A2220),
             ),
@@ -126,15 +126,15 @@ class DashboardPage extends StatelessWidget {
       const SizedBox(height: 12),
       const AttentionRow(
         icon: Icons.storefront_outlined,
-        title: '12 shops awaiting review',
+        title: '0 shops awaiting review',
         subtitle: 'Review seller applications',
         color: AdminColors.yellow,
       ),
       const SizedBox(height: 9),
       const AttentionRow(
         icon: Icons.payments_outlined,
-        title: '24 payouts pending',
-        subtitle: '₹12,350 ready to settle',
+        title: '0 payouts pending',
+        subtitle: '₹0 ready to settle',
         color: AdminColors.orange,
       ),
       const SizedBox(height: 23),
@@ -144,19 +144,21 @@ class DashboardPage extends StatelessWidget {
         onTap: () => _snack(context, 'Recent activity'),
       ),
       const SizedBox(height: 12),
-      const ActivityRow(
-        icon: Icons.shopping_bag_outlined,
-        title: 'New order received',
-        detail: '#AC78432 · The Spice Haven',
-        time: '2 min ago',
-        color: AdminColors.orange,
-      ),
-      const ActivityRow(
-        icon: Icons.person_add_alt_1,
-        title: 'New seller registered',
-        detail: 'Fresh Mart · Grocery',
-        time: '18 min ago',
-        color: AdminColors.blue,
+      const ClayPanel(
+        child: Row(
+          children: [
+            Icon(
+              Icons.hourglass_empty_rounded,
+              color: AdminColors.muted,
+              size: 18,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'No activity yet',
+              style: TextStyle(color: AdminColors.muted, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     ],
   );
@@ -170,13 +172,14 @@ class OrdersPage extends StatefulWidget {
 
 class _OrdersPageState extends State<OrdersPage> {
   String filter = 'All';
+  String query = '';
   final filters = const ['All', 'Ongoing', 'Completed', 'Cancelled'];
   final orders = const [
     (
       '#AC78432',
       'The Spice Haven',
       'Food · 10:42 AM',
-      '₹429',
+      '₹0',
       Icons.lunch_dining,
       AdminColors.orange,
       'Ongoing',
@@ -185,7 +188,7 @@ class _OrdersPageState extends State<OrdersPage> {
       '#AC78431',
       'Fresh Mart',
       'Grocery · 10:35 AM',
-      '₹1,249',
+      '₹0',
       Icons.shopping_cart,
       AdminColors.green,
       'Ongoing',
@@ -194,7 +197,7 @@ class _OrdersPageState extends State<OrdersPage> {
       '#AC78430',
       'FitZone',
       'Gym & Fitness · 10:20 AM',
-      '₹2,999',
+      '₹0',
       Icons.fitness_center,
       AdminColors.purple,
       'Completed',
@@ -203,7 +206,7 @@ class _OrdersPageState extends State<OrdersPage> {
       '#AC78429',
       'EcoPack',
       'Use & Throw · 09:56 AM',
-      '₹399',
+      '₹0',
       Icons.inventory_2_outlined,
       AdminColors.yellow,
       'Cancelled',
@@ -212,7 +215,7 @@ class _OrdersPageState extends State<OrdersPage> {
       '#AC78428',
       'Daily Basket',
       'Grocery · 09:41 AM',
-      '₹879',
+      '₹0',
       Icons.local_grocery_store,
       AdminColors.green,
       'Completed',
@@ -220,9 +223,11 @@ class _OrdersPageState extends State<OrdersPage> {
   ];
   @override
   Widget build(BuildContext context) {
-    final shown = orders
-        .where((o) => filter == 'All' || o.$7 == filter)
-        .toList();
+    final shown = orders.where((o) {
+      final matchesFilter = filter == 'All' || o.$7 == filter;
+      final searchable = '${o.$1} ${o.$2} ${o.$3}'.toLowerCase();
+      return matchesFilter && searchable.contains(query.toLowerCase());
+    }).toList();
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       children: [
@@ -232,6 +237,7 @@ class _OrdersPageState extends State<OrdersPage> {
         ),
         const SizedBox(height: 18),
         TextField(
+          onChanged: (value) => setState(() => query = value.trim()),
           decoration: const InputDecoration(
             prefixIcon: Icon(Icons.search),
             hintText: 'Search by order ID, shop or customer',
@@ -398,26 +404,26 @@ class ReportsPage extends StatelessWidget {
             SizedBox(height: 18),
             CategoryProgress(
               name: 'Food',
-              value: '42%',
-              fraction: .42,
+              value: '0%',
+              fraction: 0,
               color: AdminColors.orange,
             ),
             CategoryProgress(
               name: 'Grocery',
-              value: '28%',
-              fraction: .28,
+              value: '0%',
+              fraction: 0,
               color: AdminColors.green,
             ),
             CategoryProgress(
               name: 'Gym & Fitness',
-              value: '18%',
-              fraction: .18,
+              value: '0%',
+              fraction: 0,
               color: AdminColors.blue,
             ),
             CategoryProgress(
               name: 'Use & Throw',
-              value: '12%',
-              fraction: .12,
+              value: '0%',
+              fraction: 0,
               color: AdminColors.yellow,
             ),
           ],
@@ -434,9 +440,9 @@ class ReportsPage extends StatelessWidget {
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 8),
-            SimpleDataRow(name: 'Bengaluru Urban', value: '₹16,24,300'),
-            SimpleDataRow(name: 'Shivamogga', value: '₹8,32,020'),
-            SimpleDataRow(name: 'Mysuru', value: '₹5,41,600'),
+            SimpleDataRow(name: 'Bengaluru Urban', value: '₹0'),
+            SimpleDataRow(name: 'Shivamogga', value: '₹0'),
+            SimpleDataRow(name: 'Mysuru', value: '₹0'),
           ],
         ),
       ),
@@ -506,25 +512,25 @@ class DetailPage extends StatelessWidget {
           ProductRow(
             name: 'Chicken Biryani',
             category: 'Food',
-            price: '₹199',
+            price: '₹0',
             icon: Icons.rice_bowl,
           ),
           ProductRow(
             name: 'Whey Protein (1 kg)',
             category: 'Gym & Fitness',
-            price: '₹1,999',
+            price: '₹0',
             icon: Icons.fitness_center,
           ),
           ProductRow(
             name: 'Paper Cup (100 pcs)',
             category: 'Use & Throw',
-            price: '₹129',
+            price: '₹0',
             icon: Icons.coffee,
           ),
           ProductRow(
             name: 'Tomato (1 kg)',
             category: 'Grocery',
-            price: '₹32',
+            price: '₹0',
             icon: Icons.local_grocery_store,
           ),
         ],
@@ -551,27 +557,27 @@ class DetailPage extends StatelessWidget {
         if (title == 'Delivery partners') ...const [
           PartnerRow(
             name: 'Ravi Kumar',
-            info: '4.8 ★ · 1,240 deliveries',
+            info: '0.0 ★ · 0 deliveries',
             status: 'Online',
             active: true,
           ),
           PartnerRow(
             name: 'Manoj S',
-            info: '4.7 ★ · 980 deliveries',
+            info: '0.0 ★ · 0 deliveries',
             status: 'Online',
             active: true,
           ),
           PartnerRow(
             name: 'Abhishek R',
-            info: '4.6 ★ · 765 deliveries',
+            info: '0.0 ★ · 0 deliveries',
             status: 'Offline',
             active: false,
           ),
         ],
         if (title == 'Payouts & settlements') ...const [
           PayoutSummary(),
-          PayoutRow(name: 'Pending payouts (24)', amount: '₹12,350'),
-          PayoutRow(name: 'Scheduled payouts', amount: '₹74,070'),
+          PayoutRow(name: 'Pending payouts (0)', amount: '₹0'),
+          PayoutRow(name: 'Scheduled payouts', amount: '₹0'),
         ],
         if (title == 'Profit & loss') ...const [PnlSummary()],
         if (title == 'Settings & access') ...const [
