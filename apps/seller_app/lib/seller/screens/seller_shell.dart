@@ -254,7 +254,7 @@ class SellerHomePage extends StatelessWidget {
               Switch(
                 value: isOpen,
                 onChanged: onShopChanged,
-                activeColor: SellerColors.green,
+                activeThumbColor: SellerColors.green,
               ),
             ],
           ),
@@ -770,7 +770,7 @@ class _ProductTileState extends State<_ProductTile> {
               setState(() => widget.product.available = value);
               widget.onChanged();
             },
-            activeColor: SellerColors.green,
+            activeThumbColor: SellerColors.green,
           ),
         ],
       ),
@@ -930,7 +930,7 @@ class _ShopStatusPageState extends State<ShopStatusPage> {
               Switch(
                 value: _open,
                 onChanged: (v) => setState(() => _open = v),
-                activeColor: SellerColors.green,
+                activeThumbColor: SellerColors.green,
               ),
             ],
           ),
@@ -965,7 +965,7 @@ class _ShopStatusPageState extends State<ShopStatusPage> {
               Switch(
                 value: _breakTime,
                 onChanged: (v) => setState(() => _breakTime = v),
-                activeColor: SellerColors.orange,
+                activeThumbColor: SellerColors.orange,
               ),
             ],
           ),
@@ -1178,7 +1178,7 @@ class SellerReportsPage extends StatelessWidget {
             SizedBox(height: 16),
             _ZeroBars(),
             SizedBox(height: 10),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(

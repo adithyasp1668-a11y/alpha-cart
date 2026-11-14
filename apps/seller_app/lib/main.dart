@@ -6,15 +6,17 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final options = DefaultFirebaseOptions.currentPlatform;
-  if (options.apiKey.isEmpty || options.appId.isEmpty || options.projectId.isEmpty) {
-    throw StateError(
-      'Firebase is not configured. Fill .environment and run with '
-      '--dart-define-from-file=../../.environment.',
-    );
+  try {
+    final options = DefaultFirebaseOptions.currentPlatform;
+    if (options.apiKey.isNotEmpty &&
+        options.appId.isNotEmpty &&
+        options.projectId.isNotEmpty) {
+      await Firebase.initializeApp(options: options);
+    } else {
+      debugPrint('AlphaCart Seller: Firebase not configured, running in local/demo mode.');
+    }
+  } catch (error) {
+    debugPrint('AlphaCart Seller: Firebase initialization error: $error');
   }
-  await Firebase.initializeApp(
-    options: options,
-  );
   runApp(const AlphaCartSellerApp());
 }

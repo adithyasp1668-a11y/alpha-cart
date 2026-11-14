@@ -867,7 +867,7 @@ class _PartnerRowState extends State<PartnerRow> {
           Switch.adaptive(
             value: _active,
             onChanged: (value) => setState(() => _active = value),
-            activeColor: AdminColors.green,
+            activeTrackColor: AdminColors.green,
           ),
         ],
       ),

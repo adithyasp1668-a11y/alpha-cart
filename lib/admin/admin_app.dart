@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
 import '../firebase_options.dart';
-import 'screens/admin_pages.dart';
 import 'screens/admin_shell.dart';
 import 'theme/admin_theme.dart';
 

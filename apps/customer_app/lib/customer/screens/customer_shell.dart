@@ -59,13 +59,14 @@ class _CustomerShellState extends State<CustomerShell> {
         ),
       ),
     );
-    if (placed == true && mounted)
+    if (placed == true && mounted) {
       setState(() {
         _ordersPlaced += 1;
         _orderCounter += 1;
         _cart.clear();
         _tab = 3;
       });
+    }
   }
 
   void _openProduct(CustomerProduct product) {
@@ -2108,7 +2109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 Switch(
                   value: values[i],
-                  activeColor: CustomerColors.green,
+                  activeThumbColor: CustomerColors.green,
                   onChanged: (v) => setState(() => values[i] = v),
                 ),
               ],

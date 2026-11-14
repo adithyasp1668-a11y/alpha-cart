@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
 import '../firebase_options.dart';
-import 'models/customer_product.dart';
 import 'screens/customer_shell.dart';
 import 'theme/customer_theme.dart';
 import 'widgets/customer_widgets.dart';

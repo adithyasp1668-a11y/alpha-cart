@@ -198,7 +198,7 @@ class DeliveryHomePage extends StatelessWidget {
             Switch(
               value: online,
               onChanged: onOnline,
-              activeColor: DeliveryColors.green,
+              activeThumbColor: DeliveryColors.green,
             ),
           ],
         ),

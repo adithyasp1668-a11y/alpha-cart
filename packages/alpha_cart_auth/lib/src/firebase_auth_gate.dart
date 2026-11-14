@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,9 +6,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 /// Authentication gate shared by all Alpha Cart Flutter applications.
 ///
-/// It supports Firebase email/password, Google and phone-number sign-in. The
-/// phone flow changes to an OTP field after Firebase has sent the verification
-/// code. On web Firebase shows and verifies reCAPTCHA as part of that flow.
+/// It supports Firebase email/password, Google and phone-number sign-in,
+/// with an automatic demo/preview fallback when Firebase is not yet configured.
 class FirebaseAuthGate extends StatefulWidget {
   const FirebaseAuthGate({
     super.key,
@@ -27,7 +27,8 @@ class FirebaseAuthGate extends StatefulWidget {
 }
 
 class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
-  final _auth = FirebaseAuth.instance;
+  FirebaseAuth? get _auth =>
+      Firebase.apps.isNotEmpty ? FirebaseAuth.instance : null;
   final _googleSignIn = GoogleSignIn.instance;
   final _email = TextEditingController();
   final _password = TextEditingController();
@@ -37,6 +38,7 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
   bool _emailMode = true;
   bool _createAccount = false;
   bool _busy = false;
+  bool _bypassAuth = false;
   String? _verificationId;
   ConfirmationResult? _webConfirmation;
   late final Future<void> _googleInitialisation;
@@ -44,7 +46,7 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
   @override
   void initState() {
     super.initState();
-    _googleInitialisation = kIsWeb
+    _googleInitialisation = kIsWeb || Firebase.apps.isEmpty
         ? Future.value()
         : _googleSignIn.initialize(
             serverClientId: _emptyToNull(widget.googleWebClientId),
@@ -75,7 +77,8 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
     } on FirebaseAuthException catch (error) {
       _showMessage(error.message ?? 'Authentication failed. Please try again.');
     } catch (_) {
-      _showMessage('Authentication failed. Please check your connection and try again.');
+      _showMessage(
+          'Authentication failed. Please check your connection and try again.');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -87,6 +90,11 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
   }
 
   Future<void> _submitEmail() => _run(() async {
+    final auth = _auth;
+    if (auth == null) {
+      setState(() => _bypassAuth = true);
+      return;
+    }
     final email = _email.text.trim();
     if (email.isEmpty || _password.text.length < 6) {
       throw FirebaseAuthException(
@@ -95,12 +103,12 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
       );
     }
     if (_createAccount) {
-      await _auth.createUserWithEmailAndPassword(
+      await auth.createUserWithEmailAndPassword(
         email: email,
         password: _password.text,
       );
     } else {
-      await _auth.signInWithEmailAndPassword(
+      await auth.signInWithEmailAndPassword(
         email: email,
         password: _password.text,
       );
@@ -108,19 +116,29 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
   });
 
   Future<void> _signInWithGoogle() => _run(() async {
+    final auth = _auth;
+    if (auth == null) {
+      setState(() => _bypassAuth = true);
+      return;
+    }
     if (kIsWeb) {
-      await _auth.signInWithPopup(GoogleAuthProvider());
+      await auth.signInWithPopup(GoogleAuthProvider());
       return;
     }
     await _googleInitialisation;
-    final GoogleSignInAccount? account = await _googleSignIn.authenticate();
-    if (account == null) return;
+    final account = await _googleSignIn.authenticate();
     final googleAuth = account.authentication;
-    final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-    await _auth.signInWithCredential(credential);
+    final credential =
+        GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+    await auth.signInWithCredential(credential);
   });
 
   Future<void> _sendPhoneCode() => _run(() async {
+    final auth = _auth;
+    if (auth == null) {
+      setState(() => _bypassAuth = true);
+      return;
+    }
     final phoneNumber = _normalisedPhone();
     if (phoneNumber.length < 10) {
       throw FirebaseAuthException(
@@ -129,14 +147,14 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
       );
     }
     if (kIsWeb) {
-      _webConfirmation = await _auth.signInWithPhoneNumber(phoneNumber);
+      _webConfirmation = await auth.signInWithPhoneNumber(phoneNumber);
       if (mounted) setState(() {});
       return;
     }
-    await _auth.verifyPhoneNumber(
+    await auth.verifyPhoneNumber(
       phoneNumber: phoneNumber,
       verificationCompleted: (credential) async {
-        await _auth.signInWithCredential(credential);
+        await auth.signInWithCredential(credential);
       },
       verificationFailed: (error) => _showMessage(
         error.message ?? 'Could not send the verification code.',
@@ -153,6 +171,11 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
   });
 
   Future<void> _confirmPhoneCode() => _run(() async {
+    final auth = _auth;
+    if (auth == null) {
+      setState(() => _bypassAuth = true);
+      return;
+    }
     final code = _otp.text.trim();
     if (code.length != 6) {
       throw FirebaseAuthException(
@@ -168,7 +191,7 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
     }
     final verificationId = _verificationId;
     if (verificationId == null) throw StateError('Request a code first.');
-    await _auth.signInWithCredential(
+    await auth.signInWithCredential(
       PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: code,
@@ -176,18 +199,99 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
     );
   });
 
-  bool get _codeRequested => kIsWeb ? _webConfirmation != null : _verificationId != null;
+  bool get _codeRequested =>
+      kIsWeb ? _webConfirmation != null : _verificationId != null;
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<User?>(
-    stream: _auth.authStateChanges(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      }
-      if (snapshot.hasData) return widget.child;
-      return _buildSignInPage(context);
-    },
+  Widget build(BuildContext context) {
+    if (_bypassAuth) return widget.child;
+
+    final auth = _auth;
+    if (auth == null) {
+      return _buildDemoModePage(context);
+    }
+
+    return StreamBuilder<User?>(
+      stream: auth.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
+        }
+        if (snapshot.hasData) return widget.child;
+        return _buildSignInPage(context);
+      },
+    );
+  }
+
+  Widget _buildDemoModePage(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 430),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Icon(Icons.shopping_bag_outlined,
+                    color: widget.accentColor, size: 64),
+                const SizedBox(height: 18),
+                Text(
+                  widget.appName,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: widget.accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: widget.accentColor.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.info_outline,
+                          size: 18, color: widget.accentColor),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Demo / Local Mode active (Firebase not configured)',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () => setState(() => _bypassAuth = true),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Continue in Demo Mode'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: widget.accentColor,
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'To enable live Firebase Auth, fill your credentials in .environment and pass --dart-define-from-file=.environment',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 
   Widget _buildSignInPage(BuildContext context) => Scaffold(
@@ -200,12 +304,14 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.shopping_bag_outlined, color: widget.accentColor, size: 56),
+                Icon(Icons.shopping_bag_outlined,
+                    color: widget.accentColor, size: 56),
                 const SizedBox(height: 16),
                 Text(
                   widget.appName,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 27, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                      fontSize: 27, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
                 const Text(
@@ -221,7 +327,8 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
                   selected: {_emailMode},
                   onSelectionChanged: _busy
                       ? null
-                      : (selection) => setState(() => _emailMode = selection.first),
+                      : (selection) =>
+                          setState(() => _emailMode = selection.first),
                 ),
                 const SizedBox(height: 18),
                 if (_emailMode) ..._emailFields() else ..._phoneFields(),
@@ -231,7 +338,8 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('OR', style: Theme.of(context).textTheme.labelSmall),
+                      child: Text('OR',
+                          style: Theme.of(context).textTheme.labelSmall),
                     ),
                     const Expanded(child: Divider()),
                   ],
@@ -241,7 +349,13 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
                   onPressed: _busy ? null : _signInWithGoogle,
                   icon: const Icon(Icons.account_circle_outlined),
                   label: const Text('Continue with Google'),
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50)),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => setState(() => _bypassAuth = true),
+                  child: const Text('Continue in Demo Mode (Skip Auth)'),
                 ),
               ],
             ),
@@ -262,7 +376,8 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
     TextField(
       controller: _password,
       obscureText: true,
-      decoration: const InputDecoration(labelText: 'Password (minimum 6 characters)'),
+      decoration:
+          const InputDecoration(labelText: 'Password (minimum 6 characters)'),
     ),
     const SizedBox(height: 16),
     FilledButton(
@@ -271,8 +386,11 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
       child: Text(_createAccount ? 'Create account' : 'Sign in'),
     ),
     TextButton(
-      onPressed: _busy ? null : () => setState(() => _createAccount = !_createAccount),
-      child: Text(_createAccount ? 'I already have an account' : 'Create an account'),
+      onPressed: _busy
+          ? null
+          : () => setState(() => _createAccount = !_createAccount),
+      child: Text(
+          _createAccount ? 'I already have an account' : 'Create an account'),
     ),
   ];
 
@@ -297,7 +415,9 @@ class _FirebaseAuthGateState extends State<FirebaseAuthGate> {
     ],
     const SizedBox(height: 16),
     FilledButton(
-      onPressed: _busy ? null : (_codeRequested ? _confirmPhoneCode : _sendPhoneCode),
+      onPressed: _busy
+          ? null
+          : (_codeRequested ? _confirmPhoneCode : _sendPhoneCode),
       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
       child: Text(_codeRequested ? 'Verify code' : 'Send verification code'),
     ),

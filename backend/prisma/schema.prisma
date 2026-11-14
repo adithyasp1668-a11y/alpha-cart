@@ -1,0 +1,108 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  SELLER
+  DELIVERY
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PLACED
+  CONFIRMED
+  ACCEPTED_BY_SELLER
+  PREPARING
+  READY_FOR_PICKUP
+  DELIVERY_PARTNER_ASSIGNED
+  PICKED_UP
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  phone        String    @unique
+  email        String?   @unique
+  name         String?
+  role         Role      @default(CUSTOMER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  stores       Store[]
+  orders       Order[]   @relation("CustomerOrders")
+  deliveries   Order[]   @relation("DeliveryOrders")
+}
+
+model Store {
+  id          String    @id @default(uuid())
+  sellerId    String
+  name        String
+  category    String
+  address     String
+  latitude    Float?
+  longitude   Float?
+  isOpen      Boolean   @default(true)
+  rating      Float     @default(4.5)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  seller      User      @relation(fields: [sellerId], references: [id])
+  products    Product[]
+  orders      Order[]
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  storeId     String
+  name        String
+  description String?
+  price       Int         // stored in paise (1 INR = 100 paise)
+  imageUrl    String?
+  category    String?
+  isAvailable Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  store       Store       @relation(fields: [storeId], references: [id])
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id                String       @id @default(uuid())
+  customerId        String
+  storeId           String
+  deliveryPartnerId String?
+  status            OrderStatus  @default(PLACED)
+  totalAmount       Int          // in paise
+  deliveryAddress   String
+  deliveryOtp       String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  customer          User         @relation("CustomerOrders", fields: [customerId], references: [id])
+  store             Store        @relation(fields: [storeId], references: [id])
+  deliveryPartner   User?        @relation("DeliveryOrders", fields: [deliveryPartnerId], references: [id])
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Int      // price at purchase time in paise
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
