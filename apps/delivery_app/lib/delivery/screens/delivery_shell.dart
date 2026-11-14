@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../delivery_app.dart';
 import '../theme/delivery_theme.dart';
 import '../widgets/delivery_widgets.dart';
 
@@ -1079,33 +1081,16 @@ class DeliveryProfilePage extends StatelessWidget {
         subtitle: 'Your partner account and settings',
       ),
       const SizedBox(height: 17),
-      const DeliveryClay(
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 42,
-              backgroundColor: DeliveryColors.raised,
-              child: Icon(Icons.person, size: 42, color: DeliveryColors.muted),
-            ),
-            SizedBox(height: 12),
-            Text(
-              'Ravi Kumar',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
-            ),
-            SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.star, color: DeliveryColors.yellow, size: 15),
-                SizedBox(width: 4),
-                Text(
-                  '0.0 rating  ·  0 reviews',
-                  style: TextStyle(color: DeliveryColors.muted, fontSize: 10),
-                ),
-              ],
-            ),
-          ],
-        ),
+      UserAccountCard(
+        accentColor: DeliveryColors.orange,
+        backgroundColor: DeliveryColors.card,
+        onSignOut: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const AlphaCartDeliveryApp()),
+            (_) => false,
+          );
+        },
       ),
       const SizedBox(height: 15),
       _ProfileOption(

@@ -1,14 +1,18 @@
 # Project Continuity Snapshot
 
-**Last Updated**: 2026-11-14T21:46:00+05:30  
-**Last Task**: Configured Android Studio JBR OpenJDK 25 in `.vscode/settings.json` and `~/.zshrc`; all Flutter analyze and tests passing (0 issues).
+**Last Updated**: 2026-11-14T22:11:00+05:30  
+**Last Task**: Completed dedicated Firebase Authentication pages and flows (Email/Password, Phone OTP, Google Sign-In, Sign Out) across all 4 applications.
 
 ## Architecture & Subsystems
-- `apps/customer_app/` — Flutter (Customer ordering, categories, cart, live tracking)
-- `apps/seller_app/` — Flutter (Store management, catalog, order dispatch, earnings)
-- `apps/delivery_app/` — Flutter (Courier onboarding, order acceptance, route OTP, earnings)
-- `lib/admin/` — Flutter Admin Console (Root app: analytics, store approvals, ledger)
-- `packages/alpha_cart_auth/` — Shared auth gate (Firebase Auth + fallback demo preview)
+- `apps/customer_app/` — Flutter (Customer app with `AlphaCartAuthPage` role: `customer`)
+- `apps/seller_app/` — Flutter (Seller app with `AlphaCartAuthPage` role: `seller`)
+- `apps/delivery_app/` — Flutter (Delivery app with `AlphaCartAuthPage` role: `delivery`)
+- `lib/admin/` — Flutter Admin Console (Root app with `AlphaCartAuthPage` role: `admin`)
+- `packages/alpha_cart_auth/` — Shared auth module:
+  - `AuthService`: Singleton handling Firebase email/password, phone OTP, Google Sign-In, sign-out.
+  - `AlphaCartAuthPage`: Role-customized auth page with method switcher (Email/Phone), Google Sign-In, and Demo bypass.
+  - `FirebaseAuthGate`: Role-aware gate routing unauthenticated sessions to `AlphaCartAuthPage`.
+  - `UserAccountCard` & `SignOutTile`: Profile cards with live Firebase user identity and sign-out dialog.
 - `backend/` — Express + TypeScript + Prisma + PostgreSQL (Port 4000)
 
 ## Dev Run Commands
@@ -20,12 +24,11 @@
 - Local DB / Cache: `docker compose up -d`
 
 ## Key Architectural Quirks & Gotchas
-- JDK 25 bundled with Android Studio is at `/Applications/Android Studio.app/Contents/jbr/Contents/Home`.
-- Configured in `.vscode/settings.json` under `java.jdt.ls.java.home` and exported in `~/.zshrc`.
-- Firebase config is optional for local development: apps fall back gracefully to Demo/Preview mode instead of crashing.
-- `deprecated_member_use` ignored in `analysis_options.yaml` for clean analysis against Flutter 3.47.
+- Auth methods supported: Email/Password, Phone (+91 with 6-digit OTP verification), Google Sign-In, and Demo mode.
+- Demo mode fallback works out-of-the-box (demo OTP `123456`) when offline or before setting live Firebase keys.
+- Live Firebase mode activates automatically when `.environment` has valid credentials and `--dart-define-from-file=.environment` is passed.
 
 ## Recent Changes & Touchpoints
-- Added `.vscode/settings.json` with `java.jdt.ls.java.home`.
-- Appended `JAVA_HOME` and `PATH` exports to `~/.zshrc`.
-- Ran full `flutter analyze` and `flutter test` (0 errors, 0 warnings, all tests pass).
+- Implemented `AlphaCartAuthPage` supporting role-based customization for customer, seller, delivery, and admin.
+- Integrated `UserAccountCard` and sign-out handlers across all 4 app shells/profile pages.
+- Verified all 4 apps via `flutter analyze` and `flutter test` (0 issues).

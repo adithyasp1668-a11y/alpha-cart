@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../seller_app.dart';
 import '../theme/seller_theme.dart';
 import '../widgets/seller_widgets.dart';
 
@@ -441,6 +443,19 @@ class SellerHomePage extends StatelessWidget {
             const Text(
               'Shop settings',
               style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+            ),
+            const SizedBox(height: 12),
+            UserAccountCard(
+              accentColor: SellerColors.orange,
+              backgroundColor: SellerColors.card,
+              onSignOut: () {
+                Navigator.pop(context);
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AlphaCartSellerApp()),
+                  (_) => false,
+                );
+              },
             ),
             const SizedBox(height: 12),
             ListTile(

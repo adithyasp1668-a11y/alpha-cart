@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../admin_app.dart';
 import '../theme/admin_theme.dart';
 import '../widgets/admin_widgets.dart';
 
@@ -38,10 +40,14 @@ class DashboardPage extends StatelessWidget {
             onPressed: () => _snack(context, 'You’re all caught up'),
             icon: const Icon(Icons.notifications_none_rounded),
           ),
-          const CircleAvatar(
-            radius: 17,
-            backgroundColor: AdminColors.raised,
-            child: Icon(Icons.person, size: 19, color: AdminColors.muted),
+          InkWell(
+            onTap: () => _showAccountSheet(context),
+            borderRadius: BorderRadius.circular(20),
+            child: const CircleAvatar(
+              radius: 17,
+              backgroundColor: AdminColors.raised,
+              child: Icon(Icons.person, size: 19, color: AdminColors.muted),
+            ),
           ),
         ],
       ),
@@ -162,6 +168,42 @@ class DashboardPage extends StatelessWidget {
       ),
     ],
   );
+
+  void _showAccountSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AdminColors.card,
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Admin Account',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 14),
+              UserAccountCard(
+                accentColor: AdminColors.orange,
+                backgroundColor: AdminColors.raised,
+                onSignOut: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AlphaCartAdminApp(),
+                    ),
+                    (_) => false,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class OrdersPage extends StatefulWidget {

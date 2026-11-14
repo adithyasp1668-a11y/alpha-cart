@@ -16,6 +16,7 @@ class AlphaCartAdminApp extends StatelessWidget {
     home: FirebaseAuthGate(
       appName: 'Alpha Cart Admin',
       accentColor: AdminColors.orange,
+      role: AuthRole.admin,
       googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
       child: const AdminShell(),
     ),

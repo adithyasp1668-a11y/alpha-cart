@@ -16,6 +16,7 @@ class AlphaCartCustomerApp extends StatelessWidget {
     home: FirebaseAuthGate(
       appName: 'Alpha Cart',
       accentColor: CustomerColors.orange,
+      role: AuthRole.customer,
       googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
       child: const CustomerWelcome(),
     ),

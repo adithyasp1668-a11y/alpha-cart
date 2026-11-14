@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../customer_app.dart';
 import '../models/customer_product.dart';
 import '../theme/customer_theme.dart';
 import '../widgets/customer_widgets.dart';
@@ -1906,40 +1908,16 @@ class ProfilePage extends StatelessWidget {
         style: TextStyle(fontWeight: FontWeight.w800, fontSize: 25),
       ),
       const SizedBox(height: 14),
-      CustomerClay(
-        child: Row(
-          children: [
-            const CircleAvatar(
-              radius: 29,
-              backgroundColor: CustomerColors.raised,
-              child: Icon(Icons.person, color: CustomerColors.muted, size: 29),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Rahul Kumar',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    '+91 98765 43210',
-                    style: TextStyle(color: CustomerColors.muted, fontSize: 10),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: () => _info(context, 'Edit profile'),
-              icon: const Icon(
-                Icons.edit_outlined,
-                color: CustomerColors.orange,
-              ),
-            ),
-          ],
-        ),
+      UserAccountCard(
+        accentColor: CustomerColors.orange,
+        backgroundColor: CustomerColors.card,
+        onSignOut: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const AlphaCartCustomerApp()),
+            (_) => false,
+          );
+        },
       ),
       const SizedBox(height: 14),
       _ProfileRow(

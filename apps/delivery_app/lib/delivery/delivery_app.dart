@@ -16,6 +16,7 @@ class AlphaCartDeliveryApp extends StatelessWidget {
     home: FirebaseAuthGate(
       appName: 'Alpha Cart Delivery',
       accentColor: DeliveryColors.orange,
+      role: AuthRole.delivery,
       googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
       child: const DeliveryWelcome(),
     ),
