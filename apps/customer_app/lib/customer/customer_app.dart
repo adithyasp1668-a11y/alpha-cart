@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../firebase_options.dart';
 import 'models/customer_product.dart';
 import 'screens/customer_shell.dart';
 import 'theme/customer_theme.dart';
@@ -12,7 +14,12 @@ class AlphaCartCustomerApp extends StatelessWidget {
     title: 'Alpha Cart',
     debugShowCheckedModeBanner: false,
     theme: CustomerTheme.dark,
-    home: const CustomerWelcome(),
+    home: FirebaseAuthGate(
+      appName: 'Alpha Cart',
+      accentColor: CustomerColors.orange,
+      googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
+      child: const CustomerWelcome(),
+    ),
   );
 }
 
@@ -114,7 +121,9 @@ class CustomerWelcome extends StatelessWidget {
                     icon: Icons.arrow_forward_rounded,
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const CustomerLogin()),
+                      MaterialPageRoute(
+                        builder: (_) => const CustomerLocationSetup(),
+                      ),
                     ),
                   ),
                 ],

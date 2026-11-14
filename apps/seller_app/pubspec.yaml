@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: ^5.1.0
+  alpha_cart_auth:
+    path: ../../packages/alpha_cart_auth
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

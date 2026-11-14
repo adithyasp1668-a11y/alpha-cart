@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../firebase_options.dart';
 import 'screens/admin_pages.dart';
 import 'screens/admin_shell.dart';
 import 'theme/admin_theme.dart';
@@ -12,7 +14,12 @@ class AlphaCartAdminApp extends StatelessWidget {
     title: 'Alpha Cart Admin',
     debugShowCheckedModeBanner: false,
     theme: AdminTheme.dark,
-    home: const AdminLoginPage(),
+    home: FirebaseAuthGate(
+      appName: 'Alpha Cart Admin',
+      accentColor: AdminColors.orange,
+      googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
+      child: const AdminShell(),
+    ),
   );
 }
 

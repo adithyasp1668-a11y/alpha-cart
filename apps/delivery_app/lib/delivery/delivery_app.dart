@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../firebase_options.dart';
 import 'screens/delivery_shell.dart';
 import 'theme/delivery_theme.dart';
 import 'widgets/delivery_widgets.dart';
@@ -11,7 +13,12 @@ class AlphaCartDeliveryApp extends StatelessWidget {
     title: 'Alpha Cart Delivery',
     debugShowCheckedModeBanner: false,
     theme: DeliveryTheme.dark,
-    home: const DeliveryWelcome(),
+    home: FirebaseAuthGate(
+      appName: 'Alpha Cart Delivery',
+      accentColor: DeliveryColors.orange,
+      googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
+      child: const DeliveryWelcome(),
+    ),
   );
 }
 
@@ -116,7 +123,9 @@ class DeliveryWelcome extends StatelessWidget {
                     icon: Icons.arrow_forward_rounded,
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const DeliveryLogin()),
+                      MaterialPageRoute(
+                        builder: (_) => const DeliveryKycSetup(),
+                      ),
                     ),
                   ),
                 ],

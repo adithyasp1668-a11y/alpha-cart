@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
+import '../firebase_options.dart';
 import 'screens/seller_shell.dart';
 import 'theme/seller_theme.dart';
 import 'widgets/seller_widgets.dart';
@@ -11,7 +13,12 @@ class AlphaCartSellerApp extends StatelessWidget {
     title: 'Alpha Cart Seller',
     debugShowCheckedModeBanner: false,
     theme: SellerTheme.dark,
-    home: const SellerWelcome(),
+    home: FirebaseAuthGate(
+      appName: 'Alpha Cart Seller',
+      accentColor: SellerColors.orange,
+      googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
+      child: const SellerWelcome(),
+    ),
   );
 }
 
@@ -122,7 +129,9 @@ class SellerWelcome extends StatelessWidget {
                     icon: Icons.arrow_forward_rounded,
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const SellerLogin()),
+                      MaterialPageRoute(
+                        builder: (_) => const SellerBusinessSetup(),
+                      ),
                     ),
                   ),
                 ],
