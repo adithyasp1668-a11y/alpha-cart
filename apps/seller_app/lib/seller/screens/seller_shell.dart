@@ -88,31 +88,29 @@ class _SellerShellState extends State<SellerShell> {
           ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: LuxuryNavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (index) => setState(() => _tab = index),
-        backgroundColor: SellerColors.screen,
-        indicatorColor: SellerColors.orange.withValues(alpha: .16),
-        height: 70,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+        onTap: (index) => setState(() => _tab = index),
+        accentColor: SellerColors.orange,
+        items: const [
+          LuxuryNavItem(
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home_rounded,
             label: 'Home',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
+          LuxuryNavItem(
+            icon: Icons.receipt_long_outlined,
+            activeIcon: Icons.receipt_long_rounded,
             label: 'Orders',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
+          LuxuryNavItem(
+            icon: Icons.inventory_2_outlined,
+            activeIcon: Icons.inventory_2_rounded,
             label: 'Products',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
+          LuxuryNavItem(
+            icon: Icons.bar_chart_outlined,
+            activeIcon: Icons.bar_chart_rounded,
             label: 'Reports',
           ),
         ],

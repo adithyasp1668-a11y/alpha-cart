@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
 import '../theme/admin_theme.dart';
 import 'admin_pages.dart';
@@ -47,31 +48,29 @@ class _AdminShellState extends State<AdminShell> {
         ),
       ),
     ),
-    bottomNavigationBar: NavigationBar(
+    bottomNavigationBar: LuxuryNavigationBar(
       selectedIndex: _tab,
-      onDestinationSelected: (value) => setState(() => _tab = value),
-      backgroundColor: AdminColors.screen,
-      indicatorColor: AdminColors.orange.withValues(alpha: .16),
-      height: 70,
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
+      onTap: (value) => setState(() => _tab = value),
+      accentColor: AdminColors.orange,
+      items: const [
+        LuxuryNavItem(
+          icon: Icons.home_outlined,
+          activeIcon: Icons.home_rounded,
           label: 'Home',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.receipt_long_outlined),
-          selectedIcon: Icon(Icons.receipt_long),
+        LuxuryNavItem(
+          icon: Icons.receipt_long_outlined,
+          activeIcon: Icons.receipt_long_rounded,
           label: 'Orders',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.grid_view_rounded),
-          selectedIcon: Icon(Icons.grid_view_rounded),
+        LuxuryNavItem(
+          icon: Icons.grid_view_outlined,
+          activeIcon: Icons.grid_view_rounded,
           label: 'Manage',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.bar_chart_rounded),
-          selectedIcon: Icon(Icons.bar_chart_rounded),
+        LuxuryNavItem(
+          icon: Icons.bar_chart_outlined,
+          activeIcon: Icons.bar_chart_rounded,
           label: 'Reports',
         ),
       ],

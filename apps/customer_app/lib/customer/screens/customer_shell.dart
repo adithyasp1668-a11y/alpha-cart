@@ -169,40 +169,35 @@ class _CustomerShellState extends State<CustomerShell> {
           ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: LuxuryNavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (v) => setState(() => _tab = v),
-        backgroundColor: CustomerColors.screen,
-        indicatorColor: CustomerColors.orange.withValues(alpha: .16),
-        height: 70,
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+        onTap: (v) => setState(() => _tab = v),
+        accentColor: CustomerColors.orange,
+        items: [
+          const LuxuryNavItem(
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home_rounded,
             label: 'Home',
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.grid_view_rounded),
-            selectedIcon: Icon(Icons.grid_view_rounded),
+          const LuxuryNavItem(
+            icon: Icons.grid_view_outlined,
+            activeIcon: Icons.grid_view_rounded,
             label: 'Categories',
           ),
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: _itemCount > 0,
-              label: Text('$_itemCount'),
-              child: const Icon(Icons.shopping_bag_outlined),
-            ),
-            selectedIcon: const Icon(Icons.shopping_bag),
+          LuxuryNavItem(
+            icon: Icons.shopping_bag_outlined,
+            activeIcon: Icons.shopping_bag_rounded,
             label: 'Cart',
+            badgeCount: _itemCount,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
+          const LuxuryNavItem(
+            icon: Icons.receipt_long_outlined,
+            activeIcon: Icons.receipt_long_rounded,
             label: 'Orders',
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+          const LuxuryNavItem(
+            icon: Icons.person_outline_rounded,
+            activeIcon: Icons.person_rounded,
             label: 'Profile',
           ),
         ],

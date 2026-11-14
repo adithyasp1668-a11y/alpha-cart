@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'auth_service.dart';
+import 'clay_ui.dart';
 
 enum AuthRole {
   customer,
@@ -364,35 +365,51 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0B0D11) : Colors.grey.shade50;
-    final cardColor = isDark ? const Color(0xFF19181C) : Colors.white;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final bgColor = isDark ? const Color(0xFF0F1116) : const Color(0xFFEFF2F8);
+    final cardColor = isDark ? const Color(0xFF181B22) : const Color(0xFFF7F9FC);
+    final textColor = isDark ? Colors.white : const Color(0xFF1E222B);
 
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App Branding Header
+                  // App Branding Header with 3D Clay Medallion
                   Center(
-                    child: Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: _accentColor.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _accentColor.withValues(alpha: 0.4),
-                          width: 2,
+                    child: ClayContainer(
+                      borderRadius: 44,
+                      depth: 14,
+                      padding: const EdgeInsets.all(18),
+                      color: isDark ? const Color(0xFF1C2029) : Colors.white,
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              _accentColor.withValues(alpha: 0.95),
+                              _accentColor.withValues(alpha: 0.75),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _accentColor.withValues(alpha: 0.4),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
+                        child: Icon(_appIcon, color: Colors.white, size: 30),
                       ),
-                      child: Icon(_appIcon, color: _accentColor, size: 40),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -406,114 +423,162 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 6),
                   Text(
                     _appSubtitle,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                       height: 1.4,
                     ),
                   ),
                   const SizedBox(height: 24),
 
-                  // Auth Card Container
-                  Container(
+                  // Main Clay Auth Card
+                  ClayContainer(
+                    borderRadius: 28,
+                    depth: 16,
                     padding: const EdgeInsets.all(22),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF27282D) : Colors.grey.shade300,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
+                    color: cardColor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Method Selector (Email vs Phone)
-                        SegmentedButton<bool>(
-                          segments: const [
-                            ButtonSegment(
-                              value: true,
-                              icon: Icon(Icons.email_outlined, size: 18),
-                              label: Text('Email'),
+                        // Clay Method Selector Tabs
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildClayTab(
+                                title: 'Email',
+                                icon: Icons.email_outlined,
+                                isSelected: _isEmailMethod,
+                                onTap: _isLoading
+                                    ? null
+                                    : () => setState(() {
+                                          _isEmailMethod = true;
+                                          _codeSent = false;
+                                        }),
+                                isDark: isDark,
+                              ),
                             ),
-                            ButtonSegment(
-                              value: false,
-                              icon: Icon(Icons.phone_iphone_rounded, size: 18),
-                              label: Text('Phone'),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildClayTab(
+                                title: 'Phone OTP',
+                                icon: Icons.phone_iphone_rounded,
+                                isSelected: !_isEmailMethod,
+                                onTap: _isLoading
+                                    ? null
+                                    : () => setState(() {
+                                          _isEmailMethod = false;
+                                          _codeSent = false;
+                                        }),
+                                isDark: isDark,
+                              ),
                             ),
                           ],
-                          selected: {_isEmailMethod},
-                          onSelectionChanged: _isLoading
-                              ? null
-                              : (selection) => setState(() {
-                                    _isEmailMethod = selection.first;
-                                    _codeSent = false;
-                                  }),
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 20),
 
                         // Form Fields
-                        if (_isEmailMethod) ..._buildEmailFields() else ..._buildPhoneFields(),
+                        if (_isEmailMethod) ..._buildEmailFields(isDark) else ..._buildPhoneFields(isDark),
 
                         const SizedBox(height: 18),
 
                         // Divider OR
                         Row(
                           children: [
-                            const Expanded(child: Divider()),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white12 : Colors.black12,
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
                                 'OR',
                                 style: TextStyle(
-                                  color: Colors.grey.shade500,
+                                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
-                            const Expanded(child: Divider()),
+                            Expanded(
+                              child: Divider(
+                                color: isDark ? Colors.white12 : Colors.black12,
+                              ),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 16),
 
-                        // Google Sign-In Button
-                        OutlinedButton.icon(
+                        // Google Sign-In Button (Clay)
+                        ClayButton(
                           onPressed: _isLoading ? null : _signInWithGoogle,
-                          icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
-                          label: const Text('Continue with Google'),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                            side: BorderSide(
-                              color: isDark ? const Color(0xFF3F4142) : Colors.grey.shade400,
-                            ),
-                            foregroundColor: textColor,
+                          color: isDark ? const Color(0xFF222631) : Colors.white,
+                          borderRadius: 18,
+                          depth: 6,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 26,
+                                height: 26,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.1),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    'G',
+                                    style: TextStyle(
+                                      color: Color(0xFF4285F4),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Continue with Google',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
 
-                        // Demo Mode Skip
-                        TextButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () {
-                                  _showSuccess('Entering Demo Preview Mode');
-                                  widget.onAuthenticated();
-                                },
-                          child: Text(
-                            'Explore in Demo Mode (Skip Auth)',
-                            style: TextStyle(color: _accentColor, fontSize: 12),
+                        // Demo Mode Skip Pill
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    _showSuccess('Entering Demo Preview Mode');
+                                    widget.onAuthenticated();
+                                  },
+                            icon: Icon(Icons.flash_on_rounded, size: 16, color: _accentColor),
+                            label: Text(
+                              'Explore in Demo Mode (Skip Auth)',
+                              style: TextStyle(
+                                color: _accentColor,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -521,10 +586,17 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
                   ),
 
                   const SizedBox(height: 20),
-                  const Text(
-                    'Protected by Firebase Auth • End-to-end Encrypted',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 11),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    children: [
+                      Icon(Icons.shield_outlined, size: 14, color: Colors.grey.shade500),
+                      Text(
+                        'Protected by Firebase Auth • End-to-end Encrypted',
+                        style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -535,57 +607,153 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
     );
   }
 
-  List<Widget> _buildEmailFields() {
+  Widget _buildClayTab({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback? onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? _accentColor
+              : (isDark ? const Color(0xFF1E222B) : const Color(0xFFE9ECF4)),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? Colors.white.withValues(alpha: 0.35)
+                : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white),
+            width: 1.5,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: _accentColor.withValues(alpha: 0.4),
+                    offset: const Offset(0, 4),
+                    blurRadius: 10,
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: isDark ? Colors.black38 : const Color(0xFFC8D0E0).withValues(alpha: 0.6),
+                    offset: const Offset(2, 2),
+                    blurRadius: 5,
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 13,
+                color: isSelected ? Colors.white : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClayInputField({
+    required Widget child,
+    required bool isDark,
+  }) {
+    return ClayContainer(
+      borderRadius: 16,
+      depth: 4,
+      isInset: true,
+      color: isDark ? const Color(0xFF13151B) : const Color(0xFFEDF1F7),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      child: child,
+    );
+  }
+
+  List<Widget> _buildEmailFields(bool isDark) {
     return [
       if (_isSignUp) ...[
-        TextField(
-          controller: _nameController,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'Full Name',
-            prefixIcon: Icon(Icons.person_outline),
+        _buildClayInputField(
+          isDark: isDark,
+          child: TextField(
+            controller: _nameController,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              labelText: 'Full Name',
+              border: InputBorder.none,
+              prefixIcon: Icon(Icons.person_outline),
+            ),
           ),
         ),
         const SizedBox(height: 12),
         if (widget.role == AuthRole.seller) ...[
-          TextField(
-            controller: _extraController,
-            decoration: const InputDecoration(
-              labelText: 'Store / Restaurant Name',
-              prefixIcon: Icon(Icons.store_mall_directory_outlined),
+          _buildClayInputField(
+            isDark: isDark,
+            child: TextField(
+              controller: _extraController,
+              decoration: const InputDecoration(
+                labelText: 'Store / Restaurant Name',
+                border: InputBorder.none,
+                prefixIcon: Icon(Icons.store_mall_directory_outlined),
+              ),
             ),
           ),
           const SizedBox(height: 12),
         ] else if (widget.role == AuthRole.delivery) ...[
-          TextField(
-            controller: _extraController,
-            decoration: const InputDecoration(
-              labelText: 'Vehicle Type (Bike / Scooter / EV)',
-              prefixIcon: Icon(Icons.two_wheeler_outlined),
+          _buildClayInputField(
+            isDark: isDark,
+            child: TextField(
+              controller: _extraController,
+              decoration: const InputDecoration(
+                labelText: 'Vehicle Type (Bike / Scooter / EV)',
+                border: InputBorder.none,
+                prefixIcon: Icon(Icons.two_wheeler_outlined),
+              ),
             ),
           ),
           const SizedBox(height: 12),
         ],
       ],
-      TextField(
-        controller: _emailController,
-        keyboardType: TextInputType.emailAddress,
-        autocorrect: false,
-        decoration: const InputDecoration(
-          labelText: 'Email Address',
-          prefixIcon: Icon(Icons.alternate_email_rounded),
+      _buildClayInputField(
+        isDark: isDark,
+        child: TextField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          autocorrect: false,
+          decoration: const InputDecoration(
+            labelText: 'Email Address',
+            border: InputBorder.none,
+            prefixIcon: Icon(Icons.alternate_email_rounded),
+          ),
         ),
       ),
       const SizedBox(height: 12),
-      TextField(
-        controller: _passwordController,
-        obscureText: _obscurePassword,
-        decoration: InputDecoration(
-          labelText: 'Password',
-          prefixIcon: const Icon(Icons.lock_outline_rounded),
-          suffixIcon: IconButton(
-            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+      _buildClayInputField(
+        isDark: isDark,
+        child: TextField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            border: InputBorder.none,
+            prefixIcon: const Icon(Icons.lock_outline_rounded),
+            suffixIcon: IconButton(
+              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
           ),
         ),
       ),
@@ -599,11 +767,10 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
         ),
       ] else
         const SizedBox(height: 16),
-      FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: _accentColor,
-          minimumSize: const Size.fromHeight(48),
-        ),
+      ClayButton(
+        color: _accentColor,
+        borderRadius: 18,
+        depth: 8,
         onPressed: _isLoading ? null : _submitEmail,
         child: _isLoading
             ? const SizedBox(
@@ -611,55 +778,69 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
                 height: 22,
                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
               )
-            : Text(_isSignUp ? 'Create Account' : 'Sign In with Email'),
+            : Text(
+                _isSignUp ? 'Create Account' : 'Sign In with Email',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
+              ),
       ),
-      const SizedBox(height: 6),
+      const SizedBox(height: 8),
       TextButton(
         onPressed: _isLoading ? null : () => setState(() => _isSignUp = !_isSignUp),
         child: Text(
           _isSignUp
               ? 'Already have an account? Sign In'
               : "Don't have an account? Register",
-          style: const TextStyle(fontSize: 12),
+          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
         ),
       ),
     ];
   }
 
-  List<Widget> _buildPhoneFields() {
+  List<Widget> _buildPhoneFields(bool isDark) {
     return [
-      TextField(
-        controller: _phoneController,
-        enabled: !_codeSent,
-        keyboardType: TextInputType.phone,
-        decoration: const InputDecoration(
-          labelText: 'Mobile Number',
-          prefixText: '+91 ',
-          prefixIcon: Icon(Icons.phone_android_rounded),
-          hintText: '98765 43210',
+      _buildClayInputField(
+        isDark: isDark,
+        child: TextField(
+          controller: _phoneController,
+          enabled: !_codeSent,
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(
+            labelText: 'Mobile Number',
+            border: InputBorder.none,
+            prefixText: '+91 ',
+            prefixIcon: Icon(Icons.phone_android_rounded),
+            hintText: '98765 43210',
+          ),
         ),
       ),
       if (_codeSent) ...[
         const SizedBox(height: 14),
-        TextField(
-          controller: _otpController,
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 20, letterSpacing: 8, fontWeight: FontWeight.bold),
-          decoration: const InputDecoration(
-            labelText: '6-Digit SMS Verification Code',
-            hintText: '••••••',
-            counterText: 'Demo code: 123456',
+        _buildClayInputField(
+          isDark: isDark,
+          child: TextField(
+            controller: _otpController,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 22, letterSpacing: 8, fontWeight: FontWeight.bold),
+            decoration: const InputDecoration(
+              labelText: '6-Digit SMS Verification Code',
+              border: InputBorder.none,
+              hintText: '••••••',
+              counterText: 'Demo code: 123456',
+            ),
           ),
         ),
       ],
       const SizedBox(height: 16),
-      FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: _accentColor,
-          minimumSize: const Size.fromHeight(48),
-        ),
+      ClayButton(
+        color: _accentColor,
+        borderRadius: 18,
+        depth: 8,
         onPressed: _isLoading ? null : (_codeSent ? _verifyOtp : _sendPhoneOtp),
         child: _isLoading
             ? const SizedBox(
@@ -667,10 +848,17 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
                 height: 22,
                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
               )
-            : Text(_codeSent ? 'Verify Code & Sign In' : 'Send Verification Code'),
+            : Text(
+                _codeSent ? 'Verify Code & Sign In' : 'Send Verification Code',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
+              ),
       ),
       if (_codeSent) ...[
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -685,7 +873,7 @@ class _AlphaCartAuthPageState extends State<AlphaCartAuthPage> {
               onPressed: _sendPhoneOtp,
               child: Text(
                 'Resend Code',
-                style: TextStyle(color: _accentColor, fontSize: 12),
+                style: TextStyle(color: _accentColor, fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ),
           ],
