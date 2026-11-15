@@ -935,6 +935,7 @@ class ProductDetailsPage extends StatelessWidget {
                   ],
                 ),
               ),
+              if (product.hasGroceryInfo) _buildGrocerySpecs(product),
             ],
           ),
         ),
@@ -951,6 +952,125 @@ class ProductDetailsPage extends StatelessWidget {
       ],
     ),
   );
+
+  Widget _buildGrocerySpecs(CustomerProduct product) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 18),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (product.netQuantity != null)
+              _quickPill(Icons.scale_outlined, product.netQuantity!, CustomerColors.green),
+            if (product.shelfLife != null)
+              _quickPill(Icons.access_time_rounded, product.shelfLife!, CustomerColors.orange),
+            if (product.countryOfOrigin != null)
+              _quickPill(Icons.public_outlined, product.countryOfOrigin!, CustomerColors.muted),
+          ],
+        ),
+        const SizedBox(height: 16),
+        CustomerClay(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.inventory_2_outlined, size: 18, color: CustomerColors.green),
+                  SizedBox(width: 8),
+                  Text(
+                    'Product Information (Zepto Specs)',
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              if (product.keyFeatures != null) ...[
+                _specRow('Key Features', product.keyFeatures!),
+                const SizedBox(height: 10),
+              ],
+              if (product.nutritionalFacts != null) ...[
+                _specRow('Nutritional Info', product.nutritionalFacts!),
+                const SizedBox(height: 10),
+              ],
+              if (product.storageInstructions != null) ...[
+                _specRow('Storage & Care', product.storageInstructions!),
+                const SizedBox(height: 10),
+              ],
+              if (product.manufacturerDetails != null) ...[
+                _specRow('Manufacturer', product.manufacturerDetails!),
+                const SizedBox(height: 10),
+              ],
+              if (product.fssaiLicense != null) ...[
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: CustomerColors.green.withValues(alpha: .18),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: CustomerColors.green.withValues(alpha: .3)),
+                      ),
+                      child: const Text(
+                        'fssai',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: CustomerColors.green),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Lic. No. ${product.fssaiLicense}',
+                      style: const TextStyle(fontSize: 11, color: CustomerColors.muted),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _quickPill(IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: .28)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _specRow(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white70),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 12, color: CustomerColors.muted, height: 1.4),
+        ),
+      ],
+    );
+  }
 }
 
 class SearchPage extends StatefulWidget {

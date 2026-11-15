@@ -20,6 +20,17 @@ class _ProductEditPageState extends State<ProductEditPage> {
   late final TextEditingController _priceController;
   late final TextEditingController _discountController;
   late final TextEditingController _stockController;
+
+  // Zepto-style grocery & packaged product fields
+  late final TextEditingController _netQuantityController;
+  late final TextEditingController _shelfLifeController;
+  late final TextEditingController _keyFeaturesController;
+  late final TextEditingController _nutritionalFactsController;
+  late final TextEditingController _storageInstructionsController;
+  late final TextEditingController _manufacturerDetailsController;
+  late final TextEditingController _countryOfOriginController;
+  late final TextEditingController _fssaiLicenseController;
+
   late String _category;
   late String _storeId;
   late bool _isAvailable;
@@ -41,6 +52,16 @@ class _ProductEditPageState extends State<ProductEditPage> {
     _stockController = TextEditingController(
       text: p != null ? p.stockCount.toString() : '50',
     );
+
+    _netQuantityController = TextEditingController(text: p?.netQuantity ?? '');
+    _shelfLifeController = TextEditingController(text: p?.shelfLife ?? '');
+    _keyFeaturesController = TextEditingController(text: p?.keyFeatures ?? '');
+    _nutritionalFactsController = TextEditingController(text: p?.nutritionalFacts ?? '');
+    _storageInstructionsController = TextEditingController(text: p?.storageInstructions ?? '');
+    _manufacturerDetailsController = TextEditingController(text: p?.manufacturerDetails ?? '');
+    _countryOfOriginController = TextEditingController(text: p?.countryOfOrigin ?? 'India');
+    _fssaiLicenseController = TextEditingController(text: p?.fssaiLicense ?? '');
+
     _category = p?.category ?? _categories.first;
     _storeId = p?.storeId ?? 'store_1';
     _isAvailable = p?.isAvailable ?? true;
@@ -53,6 +74,14 @@ class _ProductEditPageState extends State<ProductEditPage> {
     _priceController.dispose();
     _discountController.dispose();
     _stockController.dispose();
+    _netQuantityController.dispose();
+    _shelfLifeController.dispose();
+    _keyFeaturesController.dispose();
+    _nutritionalFactsController.dispose();
+    _storageInstructionsController.dispose();
+    _manufacturerDetailsController.dispose();
+    _countryOfOriginController.dispose();
+    _fssaiLicenseController.dispose();
     super.dispose();
   }
 
@@ -69,6 +98,8 @@ class _ProductEditPageState extends State<ProductEditPage> {
       orElse: () => service.stores.first,
     );
 
+    final isCookedFood = _category == 'Food';
+
     final saved = AdminProduct(
       id: widget.product?.id ?? 'prod_${DateTime.now().millisecondsSinceEpoch}',
       storeId: store.id,
@@ -80,6 +111,31 @@ class _ProductEditPageState extends State<ProductEditPage> {
       discountPaise: discount,
       isAvailable: _isAvailable,
       stockCount: stock,
+      // Zepto grocery packaged item specs (only if not cooked restaurant food)
+      netQuantity: !isCookedFood && _netQuantityController.text.trim().isNotEmpty
+          ? _netQuantityController.text.trim()
+          : null,
+      shelfLife: !isCookedFood && _shelfLifeController.text.trim().isNotEmpty
+          ? _shelfLifeController.text.trim()
+          : null,
+      keyFeatures: !isCookedFood && _keyFeaturesController.text.trim().isNotEmpty
+          ? _keyFeaturesController.text.trim()
+          : null,
+      nutritionalFacts: !isCookedFood && _nutritionalFactsController.text.trim().isNotEmpty
+          ? _nutritionalFactsController.text.trim()
+          : null,
+      storageInstructions: !isCookedFood && _storageInstructionsController.text.trim().isNotEmpty
+          ? _storageInstructionsController.text.trim()
+          : null,
+      manufacturerDetails: !isCookedFood && _manufacturerDetailsController.text.trim().isNotEmpty
+          ? _manufacturerDetailsController.text.trim()
+          : null,
+      countryOfOrigin: !isCookedFood && _countryOfOriginController.text.trim().isNotEmpty
+          ? _countryOfOriginController.text.trim()
+          : 'India',
+      fssaiLicense: !isCookedFood && _fssaiLicenseController.text.trim().isNotEmpty
+          ? _fssaiLicenseController.text.trim()
+          : null,
     );
 
     service.saveProduct(saved);
@@ -126,6 +182,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
   Widget build(BuildContext context) {
     final service = AdminApiService();
     final isEditing = widget.product != null;
+    final isCookedFood = _category == 'Food';
 
     return Scaffold(
       appBar: AppBar(
@@ -155,7 +212,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
                     controller: _nameController,
                     decoration: const InputDecoration(
                       labelText: 'Product Name',
-                      hintText: 'e.g. Royal Chicken Biryani',
+                      hintText: 'e.g. Farm Fresh Hybrid Tomatoes (1kg)',
                     ),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Product name required' : null,
                   ),
@@ -165,7 +222,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
                     maxLines: 3,
                     decoration: const InputDecoration(
                       labelText: 'Description',
-                      hintText: 'Detailed product details and ingredients',
+                      hintText: 'Detailed product summary and highlights',
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -192,6 +249,8 @@ class _ProductEditPageState extends State<ProductEditPage> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Pricing & Inventory
             ClayPanel(
               padding: const EdgeInsets.all(18),
               child: Column(
@@ -255,6 +314,151 @@ class _ProductEditPageState extends State<ProductEditPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Zepto-style Packaged Goods / Grocery Information section
+            if (isCookedFood)
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AdminColors.raised,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AdminColors.line),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.restaurant_rounded, color: AdminColors.orange, size: 22),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Cooked restaurant/hotel food dishes do not require packaged grocery compliance details.',
+                        style: TextStyle(color: AdminColors.muted, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              ClayPanel(
+                padding: const EdgeInsets.all(18),
+                color: const Color(0xFF14241B),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AdminColors.green.withValues(alpha: .2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.inventory_rounded, color: AdminColors.green, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Grocery / Quick-Commerce Specs',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AdminColors.green),
+                              ),
+                              Text(
+                                'Zepto-style product specs displayed on the Customer App',
+                                style: TextStyle(color: Colors.white70, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _netQuantityController,
+                            decoration: const InputDecoration(
+                              labelText: 'Net Quantity / Weight',
+                              hintText: 'e.g. 1 kg, 500 ml, 100 pcs',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _shelfLifeController,
+                            decoration: const InputDecoration(
+                              labelText: 'Shelf Life / Expiry',
+                              hintText: 'e.g. 6 months, 5 days',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _keyFeaturesController,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        labelText: 'Key Features & Benefits',
+                        hintText: 'e.g. 100% Organic, Rich in Fiber, No added preservatives',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _nutritionalFactsController,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        labelText: 'Nutritional Information',
+                        hintText: 'e.g. Per 100g: Energy 340 kcal, Protein 12g, Carbs 68g',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _storageInstructionsController,
+                      decoration: const InputDecoration(
+                        labelText: 'Storage Instructions',
+                        hintText: 'e.g. Store in a cool dry place, keep away from direct sunlight',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _manufacturerDetailsController,
+                      decoration: const InputDecoration(
+                        labelText: 'Manufacturer / Brand Details',
+                        hintText: 'e.g. Fresh Mart Cooperative, Kolar, Karnataka',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _countryOfOriginController,
+                            decoration: const InputDecoration(
+                              labelText: 'Country of Origin',
+                              hintText: 'e.g. India',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fssaiLicenseController,
+                            decoration: const InputDecoration(
+                              labelText: 'FSSAI License No.',
+                              hintText: 'e.g. 11221333000542',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _save,

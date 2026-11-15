@@ -77,21 +77,30 @@ model Store {
 }
 
 model Product {
-  id          String      @id @default(uuid())
-  storeId     String
-  name        String
-  description String?
-  price       Int         // stored in paise (1 INR = 100 paise)
-  discount    Int         @default(0) // discount in paise
-  imageUrl    String?
-  category    String?
-  isAvailable Boolean     @default(true)
-  stockCount  Int         @default(100)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                  String      @id @default(uuid())
+  storeId             String
+  name                String
+  description         String?
+  price               Int         // stored in paise (1 INR = 100 paise)
+  discount            Int         @default(0) // discount in paise
+  imageUrl            String?
+  category            String?
+  isAvailable         Boolean     @default(true)
+  stockCount          Int         @default(100)
+  // Zepto grocery packaged specs
+  netQuantity         String?
+  shelfLife           String?
+  keyFeatures         String?
+  nutritionalFacts    String?
+  storageInstructions String?
+  manufacturerDetails String?
+  countryOfOrigin     String?     @default("India")
+  fssaiLicense        String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 
-  store       Store       @relation(fields: [storeId], references: [id])
-  orderItems  OrderItem[]
+  store               Store       @relation(fields: [storeId], references: [id])
+  orderItems          OrderItem[]
 }
 
 model Order {

@@ -158,6 +158,15 @@ class AdminProduct {
   final bool isAvailable;
   final String? imageUrl;
   final int stockCount;
+  // Zepto-style packaged grocery fields (not required for cooked restaurant food)
+  final String? netQuantity;
+  final String? shelfLife;
+  final String? keyFeatures;
+  final String? nutritionalFacts;
+  final String? storageInstructions;
+  final String? manufacturerDetails;
+  final String? countryOfOrigin;
+  final String? fssaiLicense;
 
   const AdminProduct({
     required this.id,
@@ -171,6 +180,14 @@ class AdminProduct {
     required this.isAvailable,
     this.imageUrl,
     this.stockCount = 100,
+    this.netQuantity,
+    this.shelfLife,
+    this.keyFeatures,
+    this.nutritionalFacts,
+    this.storageInstructions,
+    this.manufacturerDetails,
+    this.countryOfOrigin = 'India',
+    this.fssaiLicense,
   });
 
   String get formattedPrice => '₹${(pricePaise / 100).toStringAsFixed(0)}';
@@ -186,6 +203,14 @@ class AdminProduct {
     int? stockCount,
     String? storeId,
     String? storeName,
+    String? netQuantity,
+    String? shelfLife,
+    String? keyFeatures,
+    String? nutritionalFacts,
+    String? storageInstructions,
+    String? manufacturerDetails,
+    String? countryOfOrigin,
+    String? fssaiLicense,
   }) {
     return AdminProduct(
       id: id,
@@ -199,6 +224,14 @@ class AdminProduct {
       isAvailable: isAvailable ?? this.isAvailable,
       imageUrl: imageUrl ?? this.imageUrl,
       stockCount: stockCount ?? this.stockCount,
+      netQuantity: netQuantity ?? this.netQuantity,
+      shelfLife: shelfLife ?? this.shelfLife,
+      keyFeatures: keyFeatures ?? this.keyFeatures,
+      nutritionalFacts: nutritionalFacts ?? this.nutritionalFacts,
+      storageInstructions: storageInstructions ?? this.storageInstructions,
+      manufacturerDetails: manufacturerDetails ?? this.manufacturerDetails,
+      countryOfOrigin: countryOfOrigin ?? this.countryOfOrigin,
+      fssaiLicense: fssaiLicense ?? this.fssaiLicense,
     );
   }
 }

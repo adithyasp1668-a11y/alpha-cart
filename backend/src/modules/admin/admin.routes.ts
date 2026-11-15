@@ -135,6 +135,14 @@ let MOCK_PRODUCTS = [
     discountPaise: 30000,
     isAvailable: true,
     stockCount: 18,
+    netQuantity: '1 kg',
+    shelfLife: '24 months from manufacture',
+    keyFeatures: '24g protein per scoop, 5.5g BCAAs, Ultra-filtered whey isolate',
+    nutritionalFacts: 'Per 30g scoop: Energy 120 kcal, Protein 24g, Carbs 3g, Fat 1g',
+    storageInstructions: 'Store in a cool dry place, keep lid tightly closed',
+    manufacturerDetails: 'Optimum Nutrition, Sunrise Valley, USA · Marketed by Glanbia India',
+    countryOfOrigin: 'USA',
+    fssaiLicense: '10017011004289',
   },
   {
     id: 'prod_3',
@@ -147,6 +155,12 @@ let MOCK_PRODUCTS = [
     discountPaise: 0,
     isAvailable: true,
     stockCount: 120,
+    netQuantity: '100 cups (250ml each)',
+    shelfLife: 'No expiry (keep dry)',
+    keyFeatures: '100% compostable PLA lining, Heat resistant up to 95°C',
+    storageInstructions: 'Keep away from moisture and direct flame',
+    manufacturerDetails: 'EcoPack Industries, Peenya Phase 2, Bengaluru',
+    countryOfOrigin: 'India',
   },
 ];
 
