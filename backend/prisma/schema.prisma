@@ -14,6 +14,12 @@ enum Role {
   ADMIN
 }
 
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 enum OrderStatus {
   PENDING_PAYMENT
   PLACED
@@ -30,35 +36,44 @@ enum OrderStatus {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  phone        String    @unique
-  email        String?   @unique
-  name         String?
-  role         Role      @default(CUSTOMER)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String     @id @default(uuid())
+  phone         String     @unique
+  email         String?    @unique
+  name          String?
+  role          Role       @default(CUSTOMER)
+  kycStatus     KycStatus  @default(PENDING)
+  vehicleType   String?
+  vehicleNumber String?
+  isOnline      Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
-  stores       Store[]
-  orders       Order[]   @relation("CustomerOrders")
-  deliveries   Order[]   @relation("DeliveryOrders")
+  stores        Store[]
+  orders        Order[]    @relation("CustomerOrders")
+  deliveries    Order[]    @relation("DeliveryOrders")
+  payouts       Payout[]
 }
 
 model Store {
-  id          String    @id @default(uuid())
-  sellerId    String
-  name        String
-  category    String
-  address     String
-  latitude    Float?
-  longitude   Float?
-  isOpen      Boolean   @default(true)
-  rating      Float     @default(4.5)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String     @id @default(uuid())
+  sellerId       String
+  name           String
+  category       String
+  address        String
+  latitude       Float?
+  longitude      Float?
+  isOpen         Boolean    @default(true)
+  rating         Float      @default(4.5)
+  kycStatus      KycStatus  @default(PENDING)
+  commissionRate Float      @default(10.0)
+  fssaiNumber    String?
+  gstNumber      String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
-  seller      User      @relation(fields: [sellerId], references: [id])
-  products    Product[]
-  orders      Order[]
+  seller         User       @relation(fields: [sellerId], references: [id])
+  products       Product[]
+  orders         Order[]
 }
 
 model Product {
@@ -67,9 +82,11 @@ model Product {
   name        String
   description String?
   price       Int         // stored in paise (1 INR = 100 paise)
+  discount    Int         @default(0) // discount in paise
   imageUrl    String?
   category    String?
   isAvailable Boolean     @default(true)
+  stockCount  Int         @default(100)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -84,6 +101,8 @@ model Order {
   deliveryPartnerId String?
   status            OrderStatus  @default(PLACED)
   totalAmount       Int          // in paise
+  deliveryFee       Int          @default(3000) // in paise
+  platformFee       Int          @default(1500) // in paise
   deliveryAddress   String
   deliveryOtp       String?
   createdAt         DateTime     @default(now())
@@ -106,3 +125,34 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
 }
 
+model Payout {
+  id              String   @id @default(uuid())
+  userId          String
+  beneficiaryName String
+  beneficiaryType String   // "STORE" or "RIDER"
+  bankOrUpi       String
+  amount          Int      // in paise
+  status          String   @default("PENDING") // PENDING, SETTLED, FAILED
+  referenceId     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model PlatformSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  adminId      String
+  action       String
+  targetEntity String
+  targetId     String?
+  details      String?
+  createdAt    DateTime @default(now())
+}

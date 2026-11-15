@@ -3,6 +3,7 @@ import 'package:alpha_cart_auth/alpha_cart_auth.dart';
 
 import '../firebase_options.dart';
 import 'screens/admin_shell.dart';
+import 'screens/splash_screen.dart';
 import 'theme/admin_theme.dart';
 
 class AlphaCartAdminApp extends StatelessWidget {
@@ -18,7 +19,7 @@ class AlphaCartAdminApp extends StatelessWidget {
       accentColor: AdminColors.orange,
       role: AuthRole.admin,
       googleWebClientId: DefaultFirebaseOptions.googleWebClientId,
-      child: const AdminShell(),
+      child: const AdminSplashScreen(),
     ),
   );
 }

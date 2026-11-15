@@ -1,37 +1,41 @@
 # Project Continuity Snapshot
 
-**Last Updated**: 2026-11-14T22:38:00+05:30  
-**Last Task**: Redesigned navigation bar in each app with floating luxury glassmorphic dock; implemented Claymorphism for entry/auth pages; resolved Dart analysis cache and added full Android adaptive icons.
+**Last Updated**: 2026-11-15T19:55:00+05:30  
+**Last Task**: Implemented all 12 Admin App screens (frontend-first) + Express admin backend API endpoints with Prisma models and live mock service.
 
 ## Architecture & Subsystems
-- `apps/customer_app/` — Flutter (Customer app with `LuxuryNavigationBar` & `AlphaCartAuthPage` role: `customer`)
-- `apps/seller_app/` — Flutter (Seller app with `LuxuryNavigationBar` & `AlphaCartAuthPage` role: `seller`)
-- `apps/delivery_app/` — Flutter (Delivery app with `LuxuryNavigationBar` & `AlphaCartAuthPage` role: `delivery`)
-- `lib/admin/` — Flutter Admin Console (Root app with `LuxuryNavigationBar` & `AlphaCartAuthPage` role: `admin`)
-- `packages/alpha_cart_auth/` — Shared auth & luxury UI module:
-  - `LuxuryNavigationBar` & `LuxuryNavItem`: Floating frosted-glass dock navigation bar with micro-glow active indicators, jewel badges, tactile spring haptics, and obsidian/porcelain theming.
-  - `ClayContainer` & `ClayButton`: 3D inflated claymorphic containers and buttons with dual-light reflection and recessed inputs.
-  - `AuthService`: Singleton handling Firebase email/password, phone OTP, Google Sign-In, and sign-out.
-  - `AlphaCartAuthPage`: Claymorphic role-customized auth screen (Email/Password, Phone OTP, Google Sign-In, and Demo bypass).
-  - `FirebaseAuthGate`: Role-aware gate routing unauthenticated sessions to `AlphaCartAuthPage`.
-  - `UserAccountCard` & `SignOutTile`: Profile cards with live Firebase user identity and sign-out dialog.
-- `backend/` — Express + TypeScript + Prisma + PostgreSQL (Port 4000)
+- `lib/admin/` — Flutter Admin App (12 distinct screens matching design specifications):
+  - `AdminSplashScreen`: Animated pulsing clay logo with token verification.
+  - `AdminLoginPage` + `FirebaseAuthGate`: Role `admin` auth gate with Email/Password, Phone OTP, Google, Demo bypass.
+  - `DashboardPage`: Real-time KPI tiles with dark tints (`#355141`, `#291C3F`, `#1E3550`, `#4A2220`), live order stream, quick action shortcuts, alerts.
+  - `ProfitLossPage`: Waterfall breakdown (GMV, Commissions, Delivery Spread, Gateway Fee, Refunds, Net Margin).
+  - `OrdersPage`: Status chip tabs, search, itemized breakdown, delivery OTP, status progression buttons.
+  - `ProductsPage`: Global catalogue with category pills, availability toggle, search, floating "Add Product" CTA.
+  - `ProductEditPage`: Full Add/Update product form with price in ₹, discounts, category, store assignment, validation.
+  - `ShopsPage`: Shops & Sellers management, KYC approval/rejection, commission % dialog, open/close toggle.
+  - `DeliveryPartnersPage`: Rider fleet monitor, active order badges, online/offline toggle, KYC review.
+  - `PayoutsPage`: Pending merchant and rider balances, batch settlement disburse actions, settlement history.
+  - `ReportsPage`: Interactive category revenue distribution, sales chart, store & rider leaderboards.
+  - `SettingsPage`: Commission formula, delivery pricing parameters, COD toggle, maintenance mode, RBAC profile.
+  - `models/admin_models.dart`: Typed data models for all admin entities.
+  - `services/admin_api_service.dart`: Repository singleton with responsive in-memory state & mock fallback.
+- `backend/` — Express + TypeScript + Prisma + PostgreSQL (Port 4000):
+  - `backend/prisma/schema.prisma`: Added `KycStatus`, `Store` KYC & commission fields, `User` vehicle & online fields, `Payout`, `PlatformSetting`, `AuditLog`.
+  - `backend/src/modules/admin/admin.routes.ts`: Endpoints for metrics, PnL, orders, products CRUD, stores KYC, riders KYC, payouts settle, settings.
+  - Mounted at `/api/v1/admin` in `backend/src/app.ts`.
+- `apps/customer_app/` — Flutter Customer app
+- `apps/seller_app/` — Flutter Seller app
+- `apps/delivery_app/` — Flutter Delivery app
+- `packages/alpha_cart_auth/` — Shared auth & luxury UI dock module
 
 ## Dev Run Commands
+- Admin App: `flutter run -t lib/main.dart`
 - Customer App: `cd apps/customer_app && flutter run`
 - Seller App: `cd apps/seller_app && flutter run`
 - Delivery App: `cd apps/delivery_app && flutter run`
-- Admin App: `flutter run -t lib/main.dart`
 - Backend API: `cd backend && npm run dev`
 - Local DB / Cache: `docker compose up -d`
 
-## Key Architectural Quirks & Gotchas
-- **Analysis Cache in IDE**: Flutter 3.50+ moved `ChangeNotifier` and `ValueNotifier` to `package:listen`. All `.dart_tool/package_config.json` files have `listen 1.0.1`. In IDE, reload Dart Analysis Server (`Cmd+Shift+P` -> `Dart: Restart Analysis Server`) to flush any stale in-memory analyzer diagnostics.
-- **Launcher Icons**: Standard, round, and adaptive icon definitions are generated in `res/mipmap-*/` and `res/mipmap-anydpi-v26/` across all 4 Android app directories. For emulators with cached launcher icons, uninstall existing APK (`adb uninstall <pkg>`) before reinstalling.
-- **Demo Mode**: Demo phone OTP is `123456`, Google Sign-In simulation works offline.
-
-## Recent Changes & Touchpoints
-- Created `LuxuryNavigationBar` in `packages/alpha_cart_auth/lib/src/luxury_nav_bar.dart` and integrated it across Customer, Seller, Delivery, and Admin shells.
-- Redesigned `AlphaCartAuthPage` with Claymorphism (`ClayContainer`, `ClayButton`, recessed clay inputs, 3D clay badge).
-- Generated Android adaptive icons (`mipmap-anydpi-v26/ic_launcher.xml`, `colors.xml`, `ic_launcher_round.png`, `ic_launcher_foreground.png`).
-- All tests and analyzers passing with 0 errors, 0 warnings across all 4 applications.
+## Validation Results
+- `dart analyze lib/`: 0 errors, 0 warnings.
+- `cd backend && npm run build`: TypeScript build successful (0 errors).
